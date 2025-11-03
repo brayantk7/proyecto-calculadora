@@ -1,5 +1,6 @@
-# calculadora.py - VERSIÓN GRÁFICA (GUI) v2.0
+# calculadora.py - VERSIÓN GRÁFICA (GUI) v4.1 (Ajuste de Imagen)
 import tkinter as tk
+from PIL import Image, ImageTk
 
 # --- Colores y Fuentes ---
 COLOR_FONDO = "#f0f0f0"
@@ -22,7 +23,6 @@ def clear_display():
 def calculate_result():
     """Calcula la expresión en la pantalla."""
     try:
-        # 'eval' toma el texto (ej. "5*2") y lo calcula
         result = eval(display.get())
         clear_display()
         display.insert(0, str(result))
@@ -33,10 +33,19 @@ def calculate_result():
 # --- Handlers de Teclado ---
 def on_key_press(event):
     """Maneja las pulsaciones de teclado."""
-    if event.keysym == "Return": # keysym es el nombre de la tecla
+    key = event.keysym
+    char = event.char
+
+    if key == "Return":
         calculate_result()
-    elif event.keysym == "Escape":
+    elif key == "Escape":
         clear_display()
+    elif char in "0123456789+-*/.":
+        on_button_click(char)
+    else:
+        pass
+    
+    return "break"
 
 # --- Configuración de la Ventana ---
 window = tk.Tk()
@@ -45,9 +54,27 @@ window.resizable(False, False)
 window.configure(bg=COLOR_FONDO)
 
 # --- Pantalla (Display) ---
+# Ahora ocupa 3 columnas (de 0 a 2)
 display = tk.Entry(window, width=16, font=FUENTE_DISPLAY, justify="right", bd=0, 
                    bg=COLOR_DISPLAY, relief="solid", borderwidth=1)
-display.grid(row=0, column=0, columnspan=4, pady=20, padx=20, ipady=10) # ipady = alto interno
+display.grid(row=0, column=0, columnspan=3, pady=20, padx=(20, 10), ipady=10, sticky="ew") # 'ew' para expandir horizontalmente
+
+# --- Añadir Imagen (NUEVO LAYOUT: AHORA EN SU PROPIA COLUMNA) ---
+# La imagen va en la columna 3 (la 4ta)
+try:
+    # CAMBIA "dejimiosiempre.png" por el nombre exacto de tu archivo
+    "C:\repobrayan\proyecto-calculadora\denjimotosierra.png.png"
+    # TAMAÑO FIJO Y PEQUEÑO para asegurar que se vea
+    img_resized = img_raw.resize((40, 40), Image.LANCZOS) # Prueba con 40x40
+    img_tk = ImageTk.PhotoImage(img_resized)
+
+    label_img = tk.Label(window, image=img_tk, bg=COLOR_FONDO)
+    label_img.grid(row=0, column=3, padx=(0, 20), pady=20, sticky="ne") # Columna 3, arriba-derecha
+    label_img.image = img_tk 
+except FileNotFoundError:
+    print("Advertencia: No se encontró 'dejimiosiempre.png'. Asegúrate de que el nombre sea correcto y esté en la misma carpeta.")
+except Exception as e:
+    print(f"Error al cargar la imagen: {e}")
 
 # --- Botones ---
 buttons = [
@@ -58,23 +85,20 @@ buttons = [
 ]
 
 for (text, row, col, color) in buttons:
-    # 'relief="flat"' quita el borde 3D feo
     btn = tk.Button(window, text=text, font=FUENTE_BOTON, width=5, height=2,
                     command=lambda t=text: on_button_click(t), bg=color, relief="flat")
     btn.grid(row=row, column=col, padx=5, pady=5)
 
-# Botón de Limpiar (C)
 btn_clear = tk.Button(window, text='C', font=FUENTE_BOTON, width=5, height=2, 
                       command=clear_display, bg=COLOR_BOTON_ESP, relief="flat")
 btn_clear.grid(row=4, column=3, padx=5, pady=5)
 
-# Botón de Igual (=)
 btn_equal = tk.Button(window, text='=', font=FUENTE_BOTON, width=23, height=2, 
                       command=calculate_result, bg=COLOR_BOTON_OP, relief="flat")
 btn_equal.grid(row=5, column=0, columnspan=4, padx=5, pady=10)
 
-# --- Binds de Teclado (NUEVO) ---
-window.bind("<Key>", on_key_press) # Llama a 'on_key_press' con CUALQUIER tecla
+# --- Binds de Teclado ---
+window.bind_all("<Key>", on_key_press)
 
 # --- Iniciar la App ---
 window.mainloop()
