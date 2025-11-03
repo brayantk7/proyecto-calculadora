@@ -1,5 +1,26 @@
 # calculadora.py
 
+def calcular(num1, op, num2):
+    """Realiza el cálculo basado en la operación."""
+    try:
+        n1 = float(num1)
+        n2 = float(num2)
+    except ValueError:
+        return "[Error: Entrada no válida]"
+
+    if op == '+':
+        return n1 + n2
+    elif op == '-':
+        return n1 - n2
+    elif op == '*':
+        return n1 * n2
+    elif op == '/':
+        if n2 == 0:
+            return "[Error: División por cero]"
+        return n1 / n2
+    else:
+        return "[Error: Operador no válido]"
+
 def mostrar_menu():
     """Muestra el menú de la calculadora."""
     print("\n--- Calculadora Simple ---")
@@ -26,9 +47,8 @@ def main():
         if num2_str == 'salir':
             break
 
-        print(f"Procesando: {num1_str} {op} {num2_str}...")
-        # La lógica de cálculo vendrá después
-        print("Resultado: [CÁLCULO PENDIENTE]")
+        resultado = calcular(num1_str, op, num2_str)
+        print(f"Resultado: {resultado}")
         print("-----------------------------")
 
 # Iniciar el programa
